@@ -36,7 +36,6 @@ Code Features
 - Async Await functions
 - Function that stores data in database in sentence case
 - Several conditional statements to enable extensive manipulation of the database
-- 
 
 ## 🛠️&nbsp; Installation
 
@@ -56,6 +55,7 @@ Go to your terminal or the VSCode terminal, cd into the directory you want the c
 
     git clone <INSERT-COPIED-URL>
 
+Ensure to install Node.js and npm.
 
 Next, open the repository you cloned in Visual Studio Code. In the terminal enter the following command to install the dependencies required for the app:
 
@@ -65,7 +65,7 @@ Now the manage-put repository is on your GitHub and local computer, and ready to
 
 ## 👩🏽‍💻&nbsp; Usage
 
-To use, To use, run the following command:
+To use, run the following command:
 
     npm start
 
