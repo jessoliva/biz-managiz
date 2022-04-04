@@ -360,3 +360,105 @@ async function updateAnimal() {
 
     displayAnimals();
 };
+
+// ADD SHELTER TO DB
+async function addShelter() {
+
+    // get shelters from database
+    let sheltersDB = await db.promise().query('SELECT name, donations, cities_id FROM shelters;')
+    let sheltersArrOb = sheltersDB[0];
+
+    // get cities from database
+    let cityStateDB = await db.promise().query('SELECT * FROM cities ORDER BY state;')
+    // set cities in database to a variable
+    let cityStateArrOb = cityStateDB[0];
+
+    // turn array of objects into array of 'city, state' pairs
+    let cityStateArr = cityStateArrOb.map(cityStateDB => `${cityStateDB.name},${cityStateDB.state}`)
+
+    let userPrompt = await 
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'shelter',
+            message: 'Enter the name of the shelter:',
+            validate: shelterInput => {
+                if (shelterInput) {
+                    return true;
+                } 
+                else {
+                    console.log(errorGradient('Please enter a shelter!'));
+                    return false;
+                }
+            }
+        },
+        {
+            type: 'input',
+            name: 'donations',
+            message: 'Enter the total amount of donations the shelter has:',
+            validate: donationsInput => {
+                if (donationsInput) {
+                    return true;
+                } 
+                else {
+                    console.log(errorGradient('Please enter a donation amount!'));
+                    return false;
+                }
+            }
+        },
+        {
+            type: 'list',
+            name: 'city',
+            message: 'Select the city, state the shelter is located at:',
+            choices: cityStateArr
+        }
+    ]);
+
+    // convert user input to all uppercase
+    let shelter = capitalize(userPrompt.shelter);
+    let donations = capitalize(userPrompt.donations); 
+
+    // declare citiesID variable for cities_id
+    let citiesID;
+    cityStateArrOb.forEach(pair => {
+        if(userPrompt.city === `${pair.name},${pair.state}`) {
+            citiesID = pair.id;
+        }  
+    });
+
+    // check if shelter is already in database
+    // if the database does not have that shelter+city combination, then add it
+    if(!sheltersArrOb.some((dbData) => dbData.name === shelter && dbData.cities_id === citiesID)) {
+
+        // add shelter to database
+        let sql = `INSERT INTO shelters (name, donations, cities_id) VALUES("${shelter}", "${donations}", "${citiesID}")`
+        //
+        await db.promise().query(sql)
+
+        console.log(gradient.atlas(`\n${shelter} added to the database!`));
+
+        // start over
+        displayShelters(); 
+    }
+    // if the shelter is already in the database
+    else {
+        console.log(errorGradient('\nThis shelter is already included in the database.\n'));
+
+        // ask the user if they'd like to add another shelter or exit
+        let userChoice = await inquirer.prompt([
+            {
+                type: 'list',
+                name: 'selection',
+                message: 'What would you like to do?',
+                choices: ['Add Shelter', 'Exit']
+            }
+        ]);
+ 
+        if (userChoice.selection === 'Add Shelter') {
+            addShelter();
+        }
+        else {
+            promptUser();
+        }
+    }
+};
