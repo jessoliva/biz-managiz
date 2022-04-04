@@ -22,7 +22,9 @@
   },
   "homepage": "https://github.com/jessoliva/biz-managiz#readme",
   "dependencies": {
+    "cfonts": "^2.10.0",
     "console.table": "^0.10.0",
+    "gradient-string": "^2.0.0",
     "inquirer": "^8.2.1",
     "mysql2": "^2.3.3"
   },

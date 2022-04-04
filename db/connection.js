@@ -11,7 +11,8 @@ const db = mysql.createConnection(
         password: 'root',
         database: 'management_db'
     },
-    console.log('Connected to the management database.')
+    console.log('Connected to the adoption management database.'),
+    console.log(' ')
 );
 
 module.exports = db;
