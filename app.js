@@ -462,3 +462,82 @@ async function addShelter() {
         }
     }
 };
+
+// ADD CITY TO DB
+async function addCity() {
+
+    // get cities from database
+    let cityStateDB = await db.promise().query('SELECT name, state FROM cities;')
+
+    // set cities in database to a variable
+    let cityStateArrOb = cityStateDB[0];
+
+    let userPrompt = await 
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'city',
+            message: 'Enter the name of the city:',
+            validate: cityInput => {
+                if (cityInput) {
+                    return true;
+                } 
+                else {
+                    console.log(errorGradient('Please enter a city!'));
+                    return false;
+                }
+            }
+        },
+        {
+            type: 'input',
+            name: 'state',
+            message: 'Enter the name of the state:',
+            validate: nameInput => {
+                if (nameInput) {
+                    return true;
+                } 
+                else {
+                    console.log(errorGradient('Please enter a state!'));
+                    return false;
+                }
+            }
+        }
+    ]);
+
+    // convert user input to sentence case
+    let city = capitalize(userPrompt.city);
+    let state = capitalize(userPrompt.state); 
+
+    // some checks each element in the array and does the comparison, and if there's an existence it returns true
+    if(!cityStateArrOb.some((dbData) => dbData.name === city && dbData.state === state)) {
+
+        let sql = `INSERT INTO cities (name, state) VALUES("${city}", "${state}")`;
+        // wait until the data is inserted into the database
+        await db.promise().query(sql);
+
+        console.log(gradient.atlas(`\n${city}, ${state} added to the database!`));
+
+        displayCities();
+    }
+    // if the city is already in the database
+    else {
+        console.log(errorGradient('\nThis city, state is already included in the database.\n'));
+
+        // ask the user if they'd like to add another city or exit
+        let userChoice = await inquirer.prompt([
+            {
+                type: 'list',
+                name: 'selection',
+                message: 'What would you like to do?',
+                choices: ['Add City', 'Exit']
+            }
+        ]);
+ 
+        if (userChoice.selection === 'Add City') {
+            addCity();
+        }
+        else {
+            promptUser();
+        }
+    }
+};
