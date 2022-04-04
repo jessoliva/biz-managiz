@@ -159,3 +159,140 @@ async function displayCities() {
     promptUser();
 };
 
+// ADD AN ANIMAL
+async function addAnimal() {
+
+    // get animals from database for buddy_id
+    let animalsDB = await db.promise().query('SELECT animals.id, animals.name, breed, shelters_id, shelters.name AS shelter, cities.name as city, state FROM animals LEFT JOIN shelters ON animals.shelters_id = shelters.id LEFT JOIN cities ON shelters.cities_id = cities.id ORDER BY shelters.name;')
+    let animalsArrOb = animalsDB[0];
+    let animalsArr = animalsArrOb.map(animalsDB => `${animalsDB.name} _${animalsDB.shelter}`);
+    animalsArr.unshift(`NONE`);
+
+    // get shelters from database for shelters_id
+    let sheltersDB = await db.promise().query(`SELECT shelters.id, shelters.name AS Shelter, cities.name AS City, state AS State FROM shelters LEFT JOIN cities ON shelters.cities_id = cities.id ORDER BY state ASC, cities.name;`)
+    let sheltersArrOb = sheltersDB[0];
+    let sheltersArr = sheltersArrOb.map(sheltersDB => `${sheltersDB.Shelter}__${sheltersDB.City}, ${sheltersDB.State}`);
+
+    let userPrompt = await 
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'animal',
+            message: 'Enter the name of the animal:',
+            validate: animalInput => {
+                if (animalInput) {
+                    return true;
+                } 
+                else {
+                    console.log(errorGradient(`Please enter the animal's name!`));
+                    return false;
+                }
+            }
+        },
+        {
+            type: 'input',
+            name: 'breed',
+            message: 'Enter the breed of the animal:',
+            validate: breedInput => {
+                if (breedInput) {
+                    return true;
+                } 
+                else {
+                    console.log(errorGradient(`Please enter the animal's breed!`));
+                    return false;
+                }
+            }
+        }, 
+        {
+            type: 'list',
+            name: 'shelter',
+            message: 'Select the shelter the animal will be located at:',
+            choices: sheltersArr
+        },
+        {
+            type: 'list',
+            name: 'buddy',
+            message: `Who is the animal's buddy?`,
+            choices: animalsArr
+        }
+    ]);
+
+    // convert user input to all uppercase
+    let animal = capitalize(userPrompt.animal);
+    let breed = capitalize(userPrompt.breed);
+
+    // get shelter name from user selection for shelter
+    let shelterStr = userPrompt.shelter;
+    let shelter = shelterStr.substring(0, shelterStr.indexOf('__'));
+    // get location of shelter selected by user
+    let shelterLocation = shelterStr.substring(shelterStr.indexOf('__') + 2);
+
+    // get first word of buddy = name of buddy animal
+    let buddyStr = userPrompt.buddy;
+    let buddy = buddyStr.split(' ')[0];
+    // get last word of buddy = shelter of buddy animal
+    let buddyShelter = buddyStr.substring(buddyStr.indexOf('_') + 1);
+
+    // declare variable for buddy_id
+    let buddyID;
+    await animalsArrOb.forEach(animalDB => {
+        if(buddy === animalDB.name && buddyShelter === animalDB.shelter) {
+            buddyID = animalDB.id;
+        }
+        else if (buddy === 'NONE') {
+            buddyID = 'NONE';
+        }
+    });
+
+    // declare variable for shelters_id
+    let shelterID;
+    await sheltersArrOb.forEach(shelterDB => {
+
+        if(shelter === shelterDB.Shelter && shelterLocation === `${shelterDB.City}, ${shelterDB.State}`) {
+            shelterID = shelterDB.id;
+        }  
+    });
+
+    // check if animal is already in database
+    // if the database does not have that animal name+breed+shelter combination, then add it
+    if(!animalsArrOb.some((dbData) => dbData.name === animal && dbData.breed === breed && dbData.shelters_id === shelterID)) {
+
+        let sql;
+        if(buddyID === 'NONE') {
+            // add animal to database with buddyID as NULL (not 'NULL')
+            sql = `INSERT INTO animals (name, breed, buddy_id, shelters_id) VALUES("${animal}", "${breed}", NULL, "${shelterID}")`
+
+        }
+        else {
+            // add animal to database with buddyID
+            sql = `INSERT INTO animals (name, breed, buddy_id, shelters_id) VALUES("${animal}", "${breed}", "${buddyID}","${shelterID}")`
+        }
+
+        await db.promise().query(sql)
+
+        console.log(gradient.atlas(`\n${animal} added to the database!`));
+
+        displayAnimals();
+    }
+    // if the animal is already in the database
+    else {
+        console.log(errorGradient('\nThis animal is already included in the database.\n'));
+
+        // ask the user if they'd like to add another shelter or exit
+        const userChoice = await inquirer.prompt([
+            {
+                type: 'list',
+                name: 'selection',
+                message: 'What would you like to do?',
+                choices: ['Add An Animal', 'Exit']
+            }
+        ]);
+ 
+        if (userChoice.selection === 'Add An Animal') {
+            addAnimal();
+        }
+        else {
+            promptUser();
+        }
+    }
+};
