@@ -296,3 +296,67 @@ async function addAnimal() {
         }
     }
 };
+
+// UPDATE ANIMAL
+async function updateAnimal() {
+
+    // get animals from database
+    let animalsDB = await db.promise().query('SELECT animals.id, animals.name, breed, shelters_id, shelters.name AS shelter, cities.name as city, state FROM animals LEFT JOIN shelters ON animals.shelters_id = shelters.id LEFT JOIN cities ON shelters.cities_id = cities.id ORDER BY shelters.name;')
+    let animalsArrOb = animalsDB[0];
+    let animalsArr = animalsArrOb.map(animalsDB => `${animalsDB.name} _${animalsDB.shelter}`);
+
+    // get shelters from database
+    let sheltersDB = await db.promise().query('SELECT id, name FROM shelters;')
+    let sheltersArrOb = sheltersDB[0];
+
+    let userPrompt = await 
+    inquirer.prompt([
+        {
+            type: 'list',
+            name: 'animal',
+            message: `Which animal's location do you want to update?`,
+            choices: animalsArr
+        },
+        {
+            type: 'list',
+            name: 'shelter',
+            message: 'Which shelter has the animal been moved to?',
+            choices: sheltersDB[0]
+        }
+    ]);
+
+    // get first word of animal user choice = name of animal
+    let animalStr = userPrompt.animal;
+    let animal = animalStr.split(' ')[0];
+    // get shelter of animal selected by user
+    let animalShelter = animalStr.substring(animalStr.lastIndexOf('_') + 1);
+
+    // get shelter of animal selected by user
+    let shelter = userPrompt.shelter;
+
+    // declare variable animal.id
+    let animalID;
+    await animalsArrOb.forEach(animalDB => {
+        if(animal === animalDB.name && animalShelter === animalDB.shelter) {
+            animalID = animalDB.id;
+        }
+    });    
+
+    // declare variable for shelters_id
+    let shelterID;
+    await sheltersArrOb.forEach(shelterDB => {
+        if(shelter === shelterDB.name) {
+            shelterID = shelterDB.id;
+        }  
+    });
+
+    let sql = `UPDATE animals 
+                SET shelters_id = ${shelterID}
+                WHERE animals.id = ${animalID}`;
+
+    await db.promise().query(sql)
+
+    console.log(gradient.atlas(`\n${animal}'s shelter location was updated!`));
+
+    displayAnimals();
+};
