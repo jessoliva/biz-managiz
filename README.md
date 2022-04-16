@@ -61,7 +61,7 @@ Next, open the repository you cloned in Visual Studio Code. In the terminal ente
 
     npm i
 
-Now the manage-put repository is on your GitHub and local computer, and ready to be used! 
+Now the manage-pet repository is on your GitHub and local computer, and ready to be used! 
 
 ## 👩🏽‍💻&nbsp; Usage
 
