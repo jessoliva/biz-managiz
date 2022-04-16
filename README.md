@@ -69,7 +69,7 @@ To use, run the following command:
 
     npm start
 
-✨ Checkout the video saved here for a walk-through: assets/video.mov
+✨ Checkout the walk-through video saved here: assets/video.mov
 
 ## ✏️&nbsp; Contribution Guidelines
 
