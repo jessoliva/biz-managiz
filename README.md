@@ -41,6 +41,7 @@ Future Functionality
 - Ability to edit additional information for the animals, shelters, cities in the database
 - Ability to add city after 'Add Shelter' selection in case city location of the shelter is not in the database
 - Ability to add shelter after 'Add Animal' selection in case shelter location of the animal is not in the database
+- Refactor code and implement DRY in additional areas
 
 ## 🛠️&nbsp; Installation
 
