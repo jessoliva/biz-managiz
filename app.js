@@ -247,7 +247,6 @@ async function addAnimal() {
     // declare variable for shelters_id
     let shelterID;
     await sheltersArrOb.forEach(shelterDB => {
-
         if(shelter === shelterDB.Shelter && shelterLocation === `${shelterDB.City}, ${shelterDB.State}`) {
             shelterID = shelterDB.id;
         }  
@@ -306,8 +305,9 @@ async function updateAnimal() {
     let animalsArr = animalsArrOb.map(animalsDB => `${animalsDB.name} _${animalsDB.shelter}`);
 
     // get shelters from database
-    let sheltersDB = await db.promise().query('SELECT id, name FROM shelters;')
+    let sheltersDB = await db.promise().query(`SELECT shelters.id, shelters.name AS Shelter, cities.name AS City, state AS State FROM shelters LEFT JOIN cities ON shelters.cities_id = cities.id ORDER BY state ASC, cities.name;`)
     let sheltersArrOb = sheltersDB[0];
+    let sheltersArr = sheltersArrOb.map(sheltersDB => `${sheltersDB.Shelter}__${sheltersDB.City}, ${sheltersDB.State}`);
 
     let userPrompt = await 
     inquirer.prompt([
@@ -321,7 +321,7 @@ async function updateAnimal() {
             type: 'list',
             name: 'shelter',
             message: 'Which shelter has the animal been moved to?',
-            choices: sheltersDB[0]
+            choices: sheltersArr
         }
     ]);
 
@@ -331,8 +331,11 @@ async function updateAnimal() {
     // get shelter of animal selected by user
     let animalShelter = animalStr.substring(animalStr.lastIndexOf('_') + 1);
 
-    // get shelter of animal selected by user
-    let shelter = userPrompt.shelter;
+    // get shelter name from user selection for shelter
+    let shelterStr = userPrompt.shelter;
+    let shelter = shelterStr.substring(0, shelterStr.indexOf('__'));
+    // get location of shelter selected by user
+    let shelterLocation = shelterStr.substring(shelterStr.indexOf('__') + 2);
 
     // declare variable animal.id
     let animalID;
@@ -345,9 +348,9 @@ async function updateAnimal() {
     // declare variable for shelters_id
     let shelterID;
     await sheltersArrOb.forEach(shelterDB => {
-        if(shelter === shelterDB.name) {
+        if(shelter === shelterDB.Shelter && shelterLocation === `${shelterDB.City}, ${shelterDB.State}`) {
             shelterID = shelterDB.id;
-        }  
+        }   
     });
 
     let sql = `UPDATE animals 

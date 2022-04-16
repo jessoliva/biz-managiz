@@ -37,6 +37,11 @@ Code Features
 - Function that stores data in database in sentence case
 - Several conditional statements to enable extensive manipulation of the database
 
+Future Functionality
+- Ability to edit additional information for the animals, shelters, cities in the database
+- Ability to add city after 'Add Shelter' selection in case city location of the shelter is not in the database
+- Ability to add shelter after 'Add Animal' selection in case shelter location of the animal is not in the database
+
 ## 🛠️&nbsp; Installation
 
 At the main page of the manage-pet repository click on 'Fork' on the right hand side. This will clone the repository onto your GitHub!
@@ -69,7 +74,7 @@ To use, run the following command:
 
     npm start
 
-✨ Checkout the walk-through video saved here: assets/video.mov
+✨ Checkout the [walk-through video](https://drive.google.com/file/d/11Rq6mNAQekp8lWTQ6hOhAQzz7-a9rpWw/view?usp=sharing)
 
 ## ✏️&nbsp; Contribution Guidelines
 
