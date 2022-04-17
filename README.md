@@ -75,7 +75,7 @@ To use, run the following command:
 
     npm start
 
-✨ Checkout the [walk-through video](https://drive.google.com/file/d/1-_azyN1IbNZO9dvEtq5hhYy7eYpxo50v/view?usp=sharing)
+✨ Checkout the [walk-through video](https://drive.google.com/file/d/1-_azyN1IbNZO9dvEtq5hhYy7eYpxo50v/view?usp=sharing) </br>
 Also located in: assets/walk-through.mov
 
 ## ✏️&nbsp; Contribution Guidelines
